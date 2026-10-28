@@ -1,126 +1,111 @@
 <div align="center">
-
-<img src="docs/home.png" alt="ShopHub storefront" width="820">
+  <img src="docs/home.png" alt="ShopHub storefront" width="820">
+</div>
 
 # ShopHub
 
-**A complete e-commerce platform in black & amber — PHP + MySQL, no frameworks, no build step.**
+A self-hosted e-commerce platform built with PHP, MySQL/MariaDB, vanilla JavaScript, and hand-written CSS. ShopHub includes a customer storefront and a separate staff administration portal, with no framework, package manager, or frontend build step.
 
-Two separate applications: a customer storefront and a staff back office.
+[Storefront demo](https://shophubstore.freedev.app/shophub/) · [Staff portal demo](https://shophubstore.freedev.app/shophub-admin/)
 
-[**🛒 Live demo — storefront**](https://shophubstore.freedev.app/shophub/) &nbsp;·&nbsp; [**🔐 Live demo — staff portal**](https://shophubstore.freedev.app/shophub-admin/)
+**Demo accounts:** staff `admin@shophub.test` / `admin123` · customer `amara@example.com` / `password123`.
 
-`admin@shophub.test` / `admin123` — staff portal &nbsp;|&nbsp; `amara@example.com` / `password123` — customer
+> Demo credentials are for the sample installation only. Change or remove seeded accounts before exposing any installation to the internet.
 
-</div>
+## Overview
 
----
-
-## What it is
-
-| Folder | Who it is for | Entry point |
+| Application | Purpose | Local path |
 |---|---|---|
-| `shophub/` | Customers — browse, buy, manage their account | `/shophub/` |
-| `shophub-admin/` | Staff — catalogue, orders, reports, settings | `/shophub-admin/` |
+| `shophub/` | Customer storefront, accounts, cart, checkout, and orders | `/shophub/` |
+| `shophub-admin/` | Staff portal for products, orders, customers, reports, and settings | `/shophub-admin/` |
 
-The storefront carries **no admin login and no link to the portal**. The staff app has its own
-sign-in, its own session cookie and a `noindex` header. Both run on one database.
+The applications share a database and business logic, but use separate sign-in pages and session cookies. The staff portal is not linked from the storefront.
 
 ## Features
 
-**Storefront** — editorial homepage, catalogue with category / brand / price / stock filters and 6
-sort modes, product pages with a gallery, size–colour variant picker (live price + per-variant
-stock), specs, reviews, session cart, wishlist, coupons, guest **and** member checkout, order
-confirmation, account dashboard with order history and addresses, contact form, and a
-USD ⇄ LKR currency switch.
-
-**Staff portal** — dashboard with revenue, 14-day chart and low-stock alerts; product editor with a
-**WYSIWYG** description, specs, **multi-image drag-to-reorder gallery** and a full **variant editor**
-(any option groups → every combination gets its own SKU, price and stock); CRUD for categories,
-coupons and reviews; order management with **milestone emails** (processing / shipped / delivered /
-cancelled / refunded), internal notes and a printable invoice; **sales reports by date range** with
-CSV export for every table; **CSV import/export** for products (including variants), orders,
-customers and reviews; settings for currency, shipping, tax, payment methods, gateway keys, mail
-transport and feature switches.
-
-**Payments** — cash on delivery, bank transfer, **Stripe** (hosted Checkout) and **PayHere**
-(Sri Lanka), selected per store; webhooks are signature-verified before an order is marked paid.
-
-**Accounts & security** — email verification and password reset with hashed single-use tokens,
-per-account login throttling stored in the database, CSRF on every state-changing request, prepared
-statements throughout, stock re-checked inside a transaction at checkout, upload validation, and
-separate session cookies per app.
+- **Storefront:** searchable, filterable catalogue; product galleries and variants; reviews; cart and wishlist; coupon support; guest and member checkout; customer accounts and order history.
+- **Administration:** product, category, order, customer, review, coupon, and message management; sales reports; CSV import/export; store settings.
+- **Payments:** cash on delivery and bank transfer, plus optional Stripe Checkout and PayHere integrations.
+- **Email:** verification, password resets, order updates, and staff notifications; supports log, PHP mail, and SMTP transports.
+- **Security-focused foundations:** PDO prepared statements, CSRF checks, server-side checkout validation, stock checks in a transaction, hashed one-time account tokens, login throttling, and validated uploads.
+- **Currencies:** configurable base currency and a storefront display-currency switch (USD/LKR by default).
 
 ## Screenshots
 
-| Storefront | Product & variants |
-|---|---|
-| ![Home](docs/home.png) | ![Product](docs/product.png) |
+| Storefront | Product page | Staff dashboard |
+|---|---|---|
+| ![ShopHub storefront](docs/home.png) | ![Product detail and variants](docs/product.png) | ![Staff dashboard](docs/dashboard.png) |
 
-| Dashboard | Product editor |
-|---|---|
-| ![Dashboard](docs/dashboard.png) | ![Editor](docs/product-editor.png) |
+| Cart | Checkout | Reports |
+|---|---|---|
+| ![Shopping cart](docs/cart.png) | ![Checkout](docs/checkout.png) | ![Sales reports](docs/reports.png) |
 
-| Orders | Reports |
-|---|---|
-| ![Orders](docs/orders.png) | ![Reports](docs/reports.png) |
+## Tech stack and requirements
 
-## Requirements
+- PHP **8.1+** (tested on PHP 8.4)
+- MySQL/MariaDB for a regular installation, or SQLite for a local demo
+- PHP extensions: `pdo_mysql` or `pdo_sqlite`, `mbstring`, `fileinfo`, and `json`; `curl` is used for Stripe integration
+- Apache is supported; the included router scripts can be used with PHP's built-in server for local development
+- No Composer, npm, or frontend build step
 
-* **PHP 8.1+** (tested on 8.4) — `pdo_mysql` (or `pdo_sqlite`), `mbstring`, `fileinfo`, `json`, `curl` (Stripe only)
-* **MySQL / MariaDB**
-* Apache with `mod_rewrite` optional — `.htaccess` already protects `storage/` and `includes/`
-* No Composer, no npm, no build step
+## Quick start: local SQLite demo
 
-## Install (XAMPP or any cPanel host)
+This starts both applications on PHP's built-in server. Run the commands from a POSIX-compatible shell:
 
-1. Copy both folders into the web root, side by side:
+```bash
+git clone https://github.com/Touchdown11/ShopHub.git
+cd ShopHub/shophub
+SHOPHUB_DB_DRIVER=sqlite php install.php --fresh
 
-   ```
-   htdocs/
-   ├── shophub/
-   └── shophub-admin/
-   ```
+cd ..
+SHOPHUB_DB_DRIVER=sqlite php -S 127.0.0.1:8080 shophub/router.php
+```
 
-   One folder instead? `htdocs/shophub/{shophub, shophub-admin}` also works with no configuration.
-2. Create an empty MySQL database named `shophub` (`utf8mb4`).
-3. If your credentials differ from `root` / no password, create `shophub/includes/config.local.php`:
+Open the storefront at <http://127.0.0.1:8080/shophub/> and the staff portal at <http://127.0.0.1:8080/shophub-admin/>. The installer seeds demo catalogue data and the sample accounts listed above. The `--fresh` option drops existing ShopHub tables before rebuilding them; do not use it with data you need to keep.
+
+## MySQL/MariaDB installation
+
+1. Install PHP 8.1+ with the extensions listed above and configure a MySQL/MariaDB database server.
+2. Copy the `shophub/` and `shophub-admin/` directories side by side into your web server's document root.
+3. Create an empty database named `shophub` using `utf8mb4`.
+4. If the database credentials differ from the defaults, create `shophub/includes/config.local.php` with your local settings. This file is ignored by Git:
 
    ```php
    <?php
-   return ['db' => ['host' => 'localhost', 'name' => 'shophub', 'user' => 'your_user', 'pass' => 'your_pass']];
+   return [
+       'db' => [
+           'driver' => 'mysql',
+           'host' => '127.0.0.1',
+           'port' => 3306,
+           'name' => 'shophub',
+           'user' => 'your_database_user',
+           'pass' => 'your_database_password',
+       ],
+   ];
    ```
-4. Open `http://localhost/shophub/install.php` → tick the box → **Run installation**.
-   It creates 20 tables and loads the demo catalogue (27 products, 21 variants, 10 orders, reviews).
-5. Shop: `http://localhost/shophub/` · Portal: `http://localhost/shophub-admin/`
-6. **Delete `install.php` from the server once it works.**
 
-Command line: `php install.php` · rebuild: `php install.php --fresh` · schema only: `php install.php --migrate`.
+5. Visit `http://localhost/shophub/install.php` and confirm the installation. The installer creates the schema and loads sample data.
+6. After verifying the installation, remove `shophub/install.php` from the web server and change or remove the seeded staff and customer accounts.
 
-## Demo mode without MySQL
+For a nested folder layout, migrations, deployment guidance, and more configuration details, see [`shophub/README.md`](shophub/README.md). Staff portal-specific notes are in [`shophub-admin/README.md`](shophub-admin/README.md).
 
-```bash
-SHOPHUB_DB_DRIVER=sqlite php install.php --fresh
-SHOPHUB_DB_DRIVER=sqlite php -S localhost:8080 shophub/router.php
-```
+## Configuration and deployment notes
 
-Same code path, a file database instead — handy for a quick look. Both apps support either driver.
+- Keep database credentials and other local secrets in `config.local.php`; do not commit secrets to the repository.
+- Configure email transport and payment gateway credentials in the staff portal's **Settings** page.
+- Before a production deployment, disable debug mode, use HTTPS, configure a dedicated database user, set up real SMTP and payment credentials, and replace all demo data and passwords.
+- The included Apache rules and PHP development routers help protect runtime storage and configuration files. Review the server configuration and upload permissions for your hosting environment.
+- ShopHub is proprietary. Public source visibility does not grant permission to deploy or reuse it; see the license notice below and [`LICENSE`](LICENSE).
 
-## Deploying this to a live host
+## Project documentation
 
-See [`PUBLISH-AND-DEPLOY.md`](PUBLISH-AND-DEPLOY.md) — it covers hosting choices, the cPanel steps,
-the settings that must be changed before inviting the public (delete `install.php`, change the staff
-password, real SMTP, gateway keys) and how to keep secrets out of Git.
+- [Storefront, installation, maintenance, and troubleshooting guide](shophub/README.md)
+- [Staff portal guide](shophub-admin/README.md)
+- [Screenshots](docs/)
 
-## Tech
+## Author, ownership, and license
 
-PHP 8 · MySQL / MariaDB (SQLite for the demo) · vanilla JavaScript · hand-written CSS · inline SVG
-artwork · no external CDN, so the app runs fully offline.
+ShopHub is authored and maintained by **Buddhika Lakshan** ([@Touchdown11](https://github.com/Touchdown11)).
 
-## Licence
+Copyright &copy; 2026 Buddhika Lakshan. All rights reserved. ShopHub is proprietary software; no license is granted to copy, modify, distribute, deploy, or otherwise reuse it without prior written permission from the copyright holder. See [`LICENSE`](LICENSE) for the full notice.
 
-Choose one and keep this section honest:
-
-* **Portfolio / open source:** `MIT` — add a `LICENSE` file.
-* **Proprietary:** `© 2026 <your name>. All rights reserved. Source published for viewing only.`
-* **No reuse:** keep the repository private.
