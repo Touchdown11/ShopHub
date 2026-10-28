@@ -67,4 +67,8 @@ return ['store_path' => 'C:/xampp/htdocs/shophub/shophub'];
 business rules live in exactly one place.
 
 Full documentation, including deployment, payments and troubleshooting, is in
-`shophub/README.md`.
+[`shophub/README.md`](../shophub/README.md).
+
+## Copyright and license
+
+Copyright &copy; 2026 Buddhika Lakshan. All rights reserved. ShopHub is proprietary software; public availability does not grant permission to reuse it. See the [project license](../LICENSE)
