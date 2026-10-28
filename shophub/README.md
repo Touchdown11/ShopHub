@@ -368,5 +368,4 @@ delivery fee, free-delivery threshold, tax and per-page count all live there —
 
 ---
 
-Built as a complete, self-contained starter — no frameworks, no dependencies, nothing to `npm install`.
-Read it, rename it, ship it.
+This guide documents the ShopHub storefront and its maintenance. ShopHub is proprietary software; public availability does not grant reuse rights. See the [project license](../LICENSE).
